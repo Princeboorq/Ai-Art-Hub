@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Environment secrets
+.env
+
+# Database file (schema is auto-created by app)
+database/database.db
+!database/.gitkeep
+
+# Generated & uploaded images
+static/generated/*
+!static/generated/.gitkeep
+uploads/*
+!uploads/.gitkeep
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

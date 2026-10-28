@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Art Generator - Studio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="{{ url_for('index') }}" class="nav-brand">
+            <div class="brand-icon">🎨</div>
+            <span>AI <span class="brand-gradient">Art Generator</span></span>
+        </a>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-link active">Studio</a>
+            <a href="{{ url_for('history') }}" class="nav-link">
+                Gallery 
+                {% if stats.total > 0 %}
+                <span class="badge-stat">{{ stats.total }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('about') }}" class="nav-link">About</a>
+            <button type="button" id="btnOpenSettings" class="nav-btn-settings" title="API Keys & Engine Settings">
+                <span>⚙️</span> API Settings
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Studio Workspace -->
+    <main class="main-container">
+        
+        <div class="page-header">
+            <h1 class="page-title">Generate Breathtaking Art</h1>
+            <p class="page-subtitle">Turn any imagination, dream, or concept into striking visual artwork with intelligent neural synthesis.</p>
+        </div>
+
+        <div class="studio-grid">
+            
+            <!-- Generation Controls Column -->
+            <div class="glass-panel">
+                <form id="generateForm">
+                    
+                    <!-- Prompt Textarea -->
+                    <div class="section-title">
+                        <span>Creative Prompt</span>
+                        <div class="prompt-header-actions">
+                            <button type="button" id="btnEnhancePrompt" class="btn-secondary btn-magic" title="AI-powered prompt expansion for maximum fidelity">
+                                <span>🪄 AI Enhance</span>
+                            </button>
+                            <button type="button" id="btnSurprise" class="btn-secondary">
+                                <span>✨ Inspire Me</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-wrapper">
+                        <textarea 
+                            id="promptInput" 
+                            class="prompt-textarea" 
+                            placeholder="Describe what you want to see... (e.g. A loyal dog sitting beside a white cat, or a girl swimming in a clear forest pond)"
+                            rows="4"
+                            required
+                        ></textarea>
+                        <div class="prompt-actions">
+                            <span class="char-counter"><span id="charCount">0</span> characters</span>
+                        </div>
+                    </div>
+
+                    <!-- Suggested Prompts Scroll Strip -->
+                    <div class="suggestions-scroll">
+                        <div class="chip-suggestion" data-prompt="A gentle golden retriever lying beside a fluffy white kitten on sunlit grass, photorealistic 8k">🐱 Dog &amp; Cat</div>
+                        <div class="chip-suggestion" data-prompt="A serene girl swimming in a crystal clear pond with sunlight filtering through emerald trees, photorealistic">🌿 Girl in Pond</div>
+                        <div class="chip-suggestion" data-prompt="Cyberpunk samurai standing in neon rain overlooking a futuristic city">🌆 Cyberpunk City</div>
+                        <div class="chip-suggestion" data-prompt="Mythic phoenix reborn in violet flames and incandescent stardust">🔥 Cosmic Phoenix</div>
+                        <div class="chip-suggestion" data-prompt="Floating sky islands with cascading crystalline waterfalls">🏝️ Floating Islands</div>
+                        <div class="chip-suggestion" data-prompt="Retro 80s supercar speeding into a synthwave sunset">🏎️ Synthwave Sunset</div>
+                    </div>
+
+                    <!-- Style Selection -->
+                    <div class="section-title">
+                        <span>Artistic Style</span>
+                        <span class="hint">Select aesthetic</span>
+                    </div>
+
+                    <div class="styles-grid">
+                        {% for key, val in styles.items() %}
+                        <div class="style-card {% if key == 'photorealistic' %}active{% endif %}" data-style="{{ key }}">
+                            <span class="style-icon">{{ val.icon if val.icon else '🎨' }}</span>
+                            <span class="style-name">{{ val.name }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="selectedStyle" value="photorealistic">
+
+                    <!-- Aspect Ratio Selection -->
+                    <div class="section-title">
+                        <span>Aspect Ratio</span>
+                    </div>
+                    <div class="aspect-ratio-row">
+                        <button type="button" class="ratio-btn active" data-ratio="1:1">
+                            <span>1:1</span>
+                            <span class="ratio-sub">Square (1024)</span>
+                        </button>
+                        <button type="button" class="ratio-btn" data-ratio="16:9">
+                            <span>16:9</span>
+                            <span class="ratio-sub">Landscape</span>
+                        </button>
+                        <button type="button" class="ratio-btn" data-ratio="9:16">
+                            <span>9:16</span>
+                            <span class="ratio-sub">Portrait</span>
+                        </button>
+                        <button type="button" class="ratio-btn" data-ratio="4:3">
+                            <span>4:3</span>
+                            <span class="ratio-sub">Classic</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="selectedRatio" value="1:1">
+
+                    <!-- Advanced Settings Details -->
+                    <details class="advanced-details">
+                        <summary class="advanced-summary">⚙️ Advanced Parameters</summary>
+                        <div class="advanced-content">
+                            <div class="form-group">
+                                <label class="form-label" for="seedInput">Seed (-1 for random)</label>
+                                <input type="number" id="seedInput" class="form-control" placeholder="-1" value="-1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="engineSelect">Generation Engine</label>
+                                <select id="engineSelect" class="form-control">
+                                    <option value="auto" selected>Auto (Smart Cloud Cascade - Free &amp; High Accuracy)</option>
+                                    <option value="openai" {% if not openai_configured %}disabled{% endif %}>
+                                        OpenAI DALL-E 3 {% if not openai_configured %}(Key in Settings){% else %}⚡ (Active){% endif %}
+                                    </option>
+                                    <option value="huggingface" {% if not hf_token_configured %}disabled{% endif %}>
+                                        Hugging Face FLUX.1 {% if not hf_token_configured %}(Token in Settings){% else %}⚡ (Active){% endif %}
+                                    </option>
+                                    <option value="stability" {% if not stability_configured %}disabled{% endif %}>
+                                        Stability AI SD 3.5 {% if not stability_configured %}(Key in Settings){% else %}⚡ (Active){% endif %}
+                                    </option>
+                                    <option value="pollinations">Pollinations AI (Direct Diffusion)</option>
+                                    <option value="local_sd">Local Stable Diffusion (A1111/ComfyUI)</option>
+                                    <option value="creative_neural">Procedural Synthesizer (Offline Algorithmic Art)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="modelSelect">Diffusion Model</label>
+                                <select id="modelSelect" class="form-control">
+                                    <option value="flux" selected>FLUX.1 (High-Definition &amp; Accurate)</option>
+                                    <option value="sana">SANA 1.6B (NVIDIA / Han Lab - Ultra-fast)</option>
+                                    <option value="sdxl">Stable Diffusion XL (Stability AI Base)</option>
+                                    <option value="flux-schnell">FLUX.1 Schnell (Fast Render)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="negativePromptInput">Negative Prompt (Optional)</label>
+                                <input type="text" id="negativePromptInput" class="form-control" placeholder="Avoid: blurry, bad anatomy, deformed eyes, extra limbs, watermark">
+                            </div>
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="enhanceToggle" checked>
+                                    <span>Enable Magic Prompt Enhancer (adds lighting, composition, &amp; quality details)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Generate Action Button -->
+                    <button type="submit" id="btnGenerate" class="btn-generate">
+                        <span>✨</span>
+                        <span id="btnGenerateText">Generate Artwork</span>
+                    </button>
+
+                </form>
+            </div>
+
+            <!-- Viewport & Artwork Preview Column -->
+            <div class="glass-panel viewport-panel">
+                <div class="section-title">
+                    <span>Generated Canvas</span>
+                    <span class="hint">High-Resolution Output</span>
+                </div>
+
+                <div class="viewport-content">
+                    
+                    <!-- Idle Placeholder State -->
+                    <div id="placeholderView" class="placeholder-view">
+                        <div class="placeholder-icon">🎨</div>
+                        <h3>Your Artwork Will Appear Here</h3>
+                        <p style="font-size: 0.9rem; margin-top: 0.4rem;">Type a prompt on the left and click Generate to start synthesizing.</p>
+                    </div>
+
+                    <!-- Generating / Loading State -->
+                    <div id="loadingView" class="loading-view">
+                        <div class="glowing-orb"></div>
+                        <h3 class="loading-title">Synthesizing Artwork</h3>
+                        <div id="loadingStatus" class="loading-status">Analyzing prompt & aesthetic semantics...</div>
+                        <div class="progress-track">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Finished Artwork State -->
+                    <div id="resultView" class="result-view">
+                        <div class="result-image-wrapper" onclick="openModal(resultImage.src, encodeURIComponent(resultPrompt.textContent), pillStyle.textContent, pillSeed.textContent)">
+                            <img id="resultImage" class="result-image" src="" alt="AI Generated Artwork">
+                        </div>
+                        <div class="result-details">
+                            <div id="resultPrompt" class="result-prompt">Prompt text goes here...</div>
+                            <div class="result-meta-row">
+                                <span id="pillStyle" class="meta-pill">Style: Cyberpunk</span>
+                                <span id="pillDimensions" class="meta-pill">512x512</span>
+                                <span id="pillEngine" class="meta-pill">Creative Neural</span>
+                                <span id="pillSeed" class="meta-pill">Seed: 123456</span>
+                            </div>
+                            <div class="result-actions">
+                                <a id="btnDownload" href="#" download="artwork.png" class="btn-action btn-download">
+                                    <span>📥</span> Download Image
+                                </a>
+                                <button type="button" id="btnCopyPrompt" class="btn-action btn-copy">
+                                    <span>📋</span> Copy Prompt
+                                </button>
+                                <button type="button" id="btnRemix" class="btn-action btn-copy">
+                                    <span>🔄</span> Remix
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Recent Generations Strip -->
+        {% if recent_art %}
+        <section class="recent-strip">
+            <div class="strip-header">
+                <h2 style="font-size: 1.4rem; font-weight: 700;">Recent Creations</h2>
+                <a href="{{ url_for('history') }}" class="btn-secondary">View All in Gallery →</a>
+            </div>
+            <div class="strip-grid">
+                {% for item in recent_art %}
+                <div class="strip-card" onclick="openModal('/static/generated/{{ item.filename }}', '{{ item.prompt | urlencode }}', '{{ item.style }}', '{{ item.seed }}')">
+                    <img src="/static/generated/{{ item.filename }}" alt="{{ item.prompt }}" loading="lazy">
+                    <div class="strip-overlay">
+                        <span class="strip-prompt">{{ item.prompt }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </main>
+
+    <!-- Lightbox Zoom Modal -->
+    <div id="imageModal" class="modal-backdrop">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="modal-img-container">
+                <img id="modalImage" class="modal-img" src="" alt="Full Resolution Preview">
+            </div>
+            <div class="modal-info">
+                <h3 id="modalPrompt" style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem;"></h3>
+                <p id="modalMeta" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;"></p>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <a id="modalDownload" href="#" download="art.png" class="btn-action btn-download">
+                        <span>📥</span> Download
+                    </a>
+                    <button id="modalCopy" class="btn-action btn-copy">
+                        <span>📋</span> Copy Prompt
+                    </button>
+                    <button id="modalRemix" class="btn-action btn-copy">
+                        <span>🔄</span> Remix in Studio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Keys & Settings Modal -->
+    <div id="settingsModal" class="modal-backdrop">
+        <div class="modal-box settings-modal-box">
+            <button class="modal-close" id="btnCloseSettings">✕</button>
+            <div class="settings-modal-header">
+                <div class="brand-icon" style="width: 32px; height: 32px; font-size: 1rem;">⚙️</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700;">API Keys &amp; Model Engines</h3>
+            </div>
+            <p class="settings-desc">
+                Configure your external AI keys for maximum accuracy and custom diffusion models. Leave empty to use the built-in free Smart Cascade engine (FLUX.1 &amp; SANA).
+            </p>
+
+            <form id="settingsForm">
+                <div class="setting-item">
+                    <div class="setting-label-row">
+                        <label for="settingHfToken">Hugging Face User Token (Free FLUX.1)</label>
+                        <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer" class="setting-link">Get Free Token ↗</a>
+                    </div>
+                    <input type="password" id="settingHfToken" class="form-control" placeholder="hf_xxxxxxxxxxxxxxxxxxxxx">
+                    <span class="setting-hint">100% free with no credit card required. Gives high priority access to FLUX.1 Schnell.</span>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-label-row">
+                        <label for="settingOpenAiKey">OpenAI API Key (DALL-E 3)</label>
+                        <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" class="setting-link">Get Key ↗</a>
+                    </div>
+                    <input type="password" id="settingOpenAiKey" class="form-control" placeholder="sk-proj-xxxxxxxxxxxxxxxxxxxxx">
+                    <span class="setting-hint">Unmatched prompt comprehension and photorealistic rendering accuracy.</span>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-label-row">
+                        <label for="settingStabilityKey">Stability AI Key (SD 3.5 Large / Core)</label>
+                        <a href="https://platform.stability.ai/account/keys" target="_blank" rel="noopener noreferrer" class="setting-link">Get Key ↗</a>
+                    </div>
+                    <input type="password" id="settingStabilityKey" class="form-control" placeholder="sk-xxxxxxxxxxxxxxxxxxxxx">
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-label-row">
+                        <label for="settingPollenKey">Pollinations Pollen Key (Optional)</label>
+                        <a href="https://enter.pollinations.ai" target="_blank" rel="noopener noreferrer" class="setting-link">Get Key ↗</a>
+                    </div>
+                    <input type="password" id="settingPollenKey" class="form-control" placeholder="Optional for unlimited parallel Pollinations">
+                </div>
+
+                <div class="setting-item">
+                    <label for="settingSdUrl">Local Stable Diffusion WebUI API URL</label>
+                    <input type="text" id="settingSdUrl" class="form-control" placeholder="http://127.0.0.1:7860">
+                </div>
+
+                <div class="settings-actions">
+                    <button type="submit" id="btnSaveSettings" class="btn-generate" style="padding: 0.85rem 1.75rem; margin-top: 0.8rem; width: 100%;">
+                        <span>💾 Save &amp; Apply API Keys</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>AI Art Generator &copy; 2026 &bull; Built with Flask, PyTorch, Pillow &amp; SQLite</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

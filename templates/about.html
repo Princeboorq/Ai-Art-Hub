@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - AI Art Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="{{ url_for('index') }}" class="nav-brand">
+            <div class="brand-icon">🎨</div>
+            <span>AI <span class="brand-gradient">Art Generator</span></span>
+        </a>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-link">Studio</a>
+            <a href="{{ url_for('history') }}" class="nav-link">
+                Gallery
+                {% if stats.total > 0 %}
+                <span class="badge-stat">{{ stats.total }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('about') }}" class="nav-link active">About</a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container" style="max-width: 1000px;">
+        
+        <div class="page-header">
+            <h1 class="page-title">About AI Art Generator</h1>
+            <p class="page-subtitle">A full-stack creative generative synthesis studio powered by Python, Flask, PyTorch, and multi-engine AI pipelines.</p>
+        </div>
+
+        <!-- System Architecture Overview -->
+        <div class="glass-panel" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: #a5b4fc;">🎨 Architecture &amp; Engines</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.2rem;">
+                This application features an adaptive multi-backend architecture designed to work seamlessly out-of-the-box without requiring complex external dependencies or paid API keys, while also supporting high-end cloud and local AI diffusion models.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1.5rem;">
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #06b6d4;">⚡ Creative Neural Synthesizer</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Zero-config, high-speed procedural neural synthesizer. Translates prompt semantics, harmonious color palettes, harmonic frequency fields, and style filters (cyberpunk, oil, pixel art, watercolor) in under 1 second.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #f472b6;">🤗 Hugging Face Inference</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Direct integration with Hugging Face Serverless Inference Router for cutting-edge models like <strong>FLUX.1-schnell</strong> and <strong>Stable Diffusion XL</strong>. Simply configure <code>HF_TOKEN</code> in <code>.env</code>.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #10b981;">🧠 OpenAI DALL-E 3</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Native support for OpenAI's premier image model DALL-E 3. Enter your <code>OPENAI_API_KEY</code> in <code>.env</code> to unleash photorealistic and conceptual imagery.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #fbbf24;">🖥️ Local Stable Diffusion</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Connect to local Automatic1111 WebUI or ComfyUI instances running on <code>http://127.0.0.1:7860</code> with custom checkpoint models and LoRAs.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Configure External Keys -->
+        <div class="glass-panel" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: #f472b6;">🔑 Configuring Environment Variables</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                To enable external cloud AI models, create or edit the <code>.env</code> file in the project root:
+            </p>
+            <pre style="background: #080b12; padding: 1.2rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); color: #cbd5e1; font-family: monospace; font-size: 0.9rem; overflow-x: auto; line-height: 1.6;">
+# Hugging Face User Token (free at huggingface.co/settings/tokens)
+HF_TOKEN=hf_your_token_here
+
+# OpenAI API Key (optional for DALL-E 3)
+OPENAI_API_KEY=sk-proj-your_key_here
+
+# Local Automatic1111 WebUI URL (optional)
+STABLE_DIFFUSION_API_URL=http://127.0.0.1:7860
+            </pre>
+        </div>
+
+        <!-- Feature Highlights -->
+        <div class="glass-panel">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: #a5b4fc;">✨ Features &amp; Capabilities</h2>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.85rem; color: var(--text-secondary);">
+                <li style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="color: #10b981;">✔</span> <strong>Magic Prompt Enhancer:</strong> Enriches user concepts with professional lighting, medium, and aesthetic descriptors.
+                </li>
+                <li style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="color: #10b981;">✔</span> <strong>10 Artistic Style Presets:</strong> Cyberpunk, Anime, Fantasy, Classical Oil Painting, Synthwave, Photorealistic, Watercolor, Pixel Art, 3D Octane, and Surrealism.
+                </li>
+                <li style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="color: #10b981;">✔</span> <strong>Aspect Ratio Variety:</strong> 1:1 Square, 16:9 Landscape, 9:16 Portrait, 4:3 Classic, and 3:4 Portrait.
+                </li>
+                <li style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="color: #10b981;">✔</span> <strong>Deterministic Seed Control:</strong> Reproduce exact artwork variations with fixed seeds.
+                </li>
+                <li style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="color: #10b981;">✔</span> <strong>Persistent SQLite History:</strong> Every generation is stored with metadata, searchable and filterable in the Gallery.
+                </li>
+                <li style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="color: #10b981;">✔</span> <strong>Fullscreen Lightbox &amp; Instant Downloads:</strong> Zoom into artwork details and download high-resolution PNGs with one click.
+                </li>
+            </ul>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>AI Art Generator &copy; 2026 &bull; Built with Flask, PyTorch, Pillow &amp; SQLite</p>
+    </footer>
+
+</body>
+</html>
