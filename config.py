@@ -8,12 +8,20 @@ def _load():
 
 _load()
 
+IS_VERCEL = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
+
 class Config:
     BASE_DIR = BASE_DIR
     SECRET_KEY = os.environ.get('SECRET_KEY', 'ai-art-generator-secret-key-2026')
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-    GENERATED_FOLDER = os.path.join(BASE_DIR, 'static', 'generated')
-    DATABASE_PATH = os.path.join(BASE_DIR, 'database', 'database.db')
+    
+    if IS_VERCEL:
+        UPLOAD_FOLDER = '/tmp/uploads'
+        GENERATED_FOLDER = '/tmp/generated'
+        DATABASE_PATH = '/tmp/database.db'
+    else:
+        UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+        GENERATED_FOLDER = os.path.join(BASE_DIR, 'static', 'generated')
+        DATABASE_PATH = os.path.join(BASE_DIR, 'database', 'database.db')
     
     # API Keys for External Engines
     HF_TOKEN = os.environ.get('HF_TOKEN', '').strip()

@@ -22,16 +22,24 @@ from utils.image_generator import (
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
 app.config.from_object(Config)
 
-# Ensure upload, generated, and database directories exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs(app.config['GENERATED_FOLDER'], exist_ok=True)
-os.makedirs(os.path.dirname(app.config['DATABASE_PATH']), exist_ok=True)
-
-# Initialize SQLite tables
-init_db()
+# Ensure upload, generated, and database directories exist safely
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['GENERATED_FOLDER'], exist_ok=True)
+    os.makedirs(os.path.dirname(app.config['DATABASE_PATH']), exist_ok=True)
+    # Initialize SQLite tables
+    init_db()
+except Exception as e:
+    logger.warning(f"Storage / database init warning: {e}")
 
 @app.route('/')
 def index():
@@ -241,6 +249,17 @@ def about():
     """Information and guide page."""
     stats = get_stats()
     return render_template('about.html', stats=stats)
+
+@app.route('/static/generated/<path:filename>')
+def serve_generated_file(filename):
+    """Serve dynamically generated images across local and serverless environments."""
+    from flask import send_from_directory
+    if os.path.exists(os.path.join(Config.GENERATED_FOLDER, filename)):
+        return send_from_directory(Config.GENERATED_FOLDER, filename)
+    local_dir = os.path.join(Config.BASE_DIR, 'static', 'generated')
+    if os.path.exists(os.path.join(local_dir, filename)):
+        return send_from_directory(local_dir, filename)
+    return "Image not found", 404
 
 if __name__ == '__main__':
     print("=" * 60)
