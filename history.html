@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery &amp; History - AI Art Generator</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon">🎨</div>
+            <span>AI <span class="brand-gradient">Art Generator</span></span>
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">Studio</a>
+            <a href="history.html" class="nav-link active">
+                Gallery
+                <span class="badge-stat" id="navGalleryCount"></span>
+            </a>
+            <a href="about.html" class="nav-link">About</a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        
+        <div class="page-header">
+            <h1 class="page-title">Art Gallery &amp; History</h1>
+            <p class="page-subtitle">Explore and manage all artwork generated in this studio.</p>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="gallery-filters">
+            
+            <div class="filter-pills" id="filterPillsContainer">
+                <button type="button" class="pill-filter active" data-filter="all">All Styles (<span id="totalArtCount">0</span>)</button>
+                <button type="button" class="pill-filter" data-filter="photorealistic">Photorealistic</button>
+                <button type="button" class="pill-filter" data-filter="faithful">Natural / Faithful</button>
+                <button type="button" class="pill-filter" data-filter="cinematic">Cinematic</button>
+                <button type="button" class="pill-filter" data-filter="digital_art">Digital Art</button>
+                <button type="button" class="pill-filter" data-filter="anime">Anime &amp; Manga</button>
+                <button type="button" class="pill-filter" data-filter="fantasy">Mythic Fantasy</button>
+                <button type="button" class="pill-filter" data-filter="cyberpunk">Cyberpunk</button>
+                <button type="button" class="pill-filter" data-filter="oil_painting">Oil Painting</button>
+                <button type="button" class="pill-filter" data-filter="3d_render">3D Render</button>
+                <button type="button" class="pill-filter" data-filter="synthwave">Synthwave</button>
+                <button type="button" class="pill-filter" data-filter="watercolor">Watercolor</button>
+                <button type="button" class="pill-filter" data-filter="pixel_art">Pixel Art</button>
+                <button type="button" class="pill-filter" data-filter="surrealism">Surrealism</button>
+            </div>
+
+            <div class="search-box">
+                <span style="margin-right: 0.5rem; opacity: 0.6;">🔍</span>
+                <input type="text" id="gallerySearchInput" placeholder="Search prompts..." autocomplete="off">
+            </div>
+
+        </div>
+
+        <!-- Clear History Action Row -->
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
+            <button type="button" id="btnClearHistory" class="btn-secondary" style="font-size: 0.85rem; color: #f87171; border-color: rgba(248, 113, 113, 0.2);">
+                <span>🗑️</span> Clear Gallery
+            </button>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Dynamically populated via script.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="galleryEmptyState" class="glass-panel" style="text-align: center; padding: 4rem 2rem; display: none;">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.7;">🖼️</div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">No Artwork Found</h2>
+            <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.5rem;" id="emptyStateMsg">
+                You haven't generated any artwork yet. Jump over to the Studio and create your first piece!
+            </p>
+            <a href="index.html" class="btn-secondary" style="background: var(--primary); color: #fff; padding: 0.7rem 1.5rem; display: inline-block;">
+                ✨ Go to Studio
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Lightbox Zoom Modal -->
+    <div id="imageModal" class="modal-backdrop">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="modal-img-container">
+                <img id="modalImage" class="modal-img" src="" alt="Full Resolution Preview">
+            </div>
+            <div class="modal-info">
+                <h3 id="modalPrompt" style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem;"></h3>
+                <p id="modalMeta" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;"></p>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <a id="modalDownload" href="#" download="art.png" class="btn-action btn-download">
+                        <span>📥</span> Download
+                    </a>
+                    <button id="modalCopy" class="btn-action btn-copy">
+                        <span>📋</span> Copy Prompt
+                    </button>
+                    <button id="modalRemix" class="btn-action btn-copy">
+                        <span>🔄</span> Remix in Studio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>AI Art Generator &copy; 2026 &bull; Multi-Engine Generative Studio</p>
+    </footer>
+
+    <script src="static/js/script.js"></script>
+</body>
+</html>

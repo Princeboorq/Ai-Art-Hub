@@ -1,5 +1,6 @@
 /**
- * AI Art Generator - Interactive Client-Side Application
+ * AI Art Generator - Interactive Client-Side & Multi-Backend Application
+ * Supports both Flask Backend API and 100% Client-Side Static Deployment (GitHub Pages)
  */
 
 // Curated library of creative prompt ideas
@@ -26,6 +27,138 @@ const STATUS_STEPS = [
     { time: 35000, progress: 96, text: "Finalizing composition & saving artwork..." }
 ];
 
+// Style preset descriptors and modifiers
+const STYLE_PRESETS = {
+    'photorealistic': {
+        name: 'Photorealistic',
+        suffix: 'photorealistic 8k, hyper-detailed, sharp focus, natural volumetric lighting, cinematic photography, shot on 35mm lens, f/1.8 aperture, realistic textures, masterpiece'
+    },
+    'faithful': {
+        name: 'Natural / Faithful',
+        suffix: 'masterpiece, high quality, sharp focus, clear details, high definition, true to prompt'
+    },
+    'cinematic': {
+        name: 'Cinematic Film',
+        suffix: 'cinematic film still, 35mm photograph, anamorphic lens flare, shallow depth of field, dramatic movie color grading, IMAX 70mm quality'
+    },
+    'digital_art': {
+        name: 'Digital Art',
+        suffix: 'digital concept art, trending on ArtStation, dramatic lighting, detailed composition, vibrant atmosphere, 8k render, masterpiece'
+    },
+    'anime': {
+        name: 'Anime & Manga',
+        suffix: 'anime art style, Makoto Shinkai aesthetic, Studio Ghibli inspired, vibrant saturated colors, clean line art, masterpiece'
+    },
+    'fantasy': {
+        name: 'Mythic Fantasy',
+        suffix: 'high fantasy concept art, mystical glowing runes, ethereal atmospheric lighting, epic scale, ArtStation trending, intricate details'
+    },
+    'cyberpunk': {
+        name: 'Cyberpunk & Neon',
+        suffix: 'cyberpunk aesthetic, glowing neon lights, rain reflections, volumetric fog, futuristic cityscape, octane render, 8k'
+    },
+    'oil_painting': {
+        name: 'Oil Painting',
+        suffix: 'classical oil painting, visible canvas texture, thick impasto brushstrokes, dramatic chiaroscuro, Rembrandt lighting'
+    },
+    '3d_render': {
+        name: '3D Pixar / Octane',
+        suffix: '3D stylized character art, smooth octane render, raytraced ambient occlusion, subsurface scattering, Pixar aesthetic, vibrant 3D'
+    },
+    'synthwave': {
+        name: 'Synthwave',
+        suffix: 'synthwave 80s retrowave, neon wireframe grid, giant glowing retro sun, deep purple and hot magenta gradient, VHS vibe'
+    },
+    'watercolor': {
+        name: 'Watercolor',
+        suffix: 'traditional watercolor painting, delicate paper grain, soft bleeding washes, fluid splash splatter, artistic masterpiece'
+    },
+    'pixel_art': {
+        name: 'Retro Pixel Art',
+        suffix: 'pixel art, 16-bit retro arcade aesthetic, nostalgic dithering, crisp pixel grid, vibrant colors'
+    },
+    'surrealism': {
+        name: 'Surrealism',
+        suffix: 'surrealist dreamscape, Salvador Dali inspired, impossible dream geometry, floating elements, metaphysical art, symbolic and evocative'
+    },
+    'raw': {
+        name: 'Pure Prompt (Raw)',
+        suffix: ''
+    }
+};
+
+const ASPECT_RATIO_DIMS = {
+    '1:1': [1024, 1024],
+    '16:9': [1024, 576],
+    '9:16': [576, 1024],
+    '4:3': [1024, 768],
+    '3:4': [768, 1024]
+};
+
+// Initial curated showcase samples
+const SHOWCASE_SAMPLES = [
+    {
+        id: 'sample-1',
+        prompt: 'A loyal golden retriever and a fluffy white kitten sitting in sunlit grass',
+        style: 'faithful',
+        dimensions: '1024x576',
+        engine: 'Cloud Diffusion (FLUX.1)',
+        seed: '17520961',
+        image_url: 'static/generated/art_4ab1439f8957_17520961.png',
+        created_at: '2026-10-30 04:53'
+    },
+    {
+        id: 'sample-2',
+        prompt: 'A loyal dog with a kitten in watercolor illustration',
+        style: 'watercolor',
+        dimensions: '1024x576',
+        engine: 'Cloud Diffusion (FLUX.1)',
+        seed: '849651504',
+        image_url: 'static/generated/art_58d51fb79755_849651504.png',
+        created_at: '2026-10-30 04:52'
+    },
+    {
+        id: 'sample-3',
+        prompt: 'Anime style cute puppy and playful kitten',
+        style: 'anime',
+        dimensions: '1024x576',
+        engine: 'Cloud Diffusion (FLUX.1)',
+        seed: '259507910',
+        image_url: 'static/generated/art_a7f3b92e4a80_259507910.png',
+        created_at: '2026-10-30 04:52'
+    },
+    {
+        id: 'sample-4',
+        prompt: 'Retro 80s supercar speeding into a synthwave sunset',
+        style: 'photorealistic',
+        dimensions: '1024x1024',
+        engine: 'Cloud Diffusion (SDXL)',
+        seed: '691586539',
+        image_url: 'static/generated/art_99f7af9401bb_691586539.png',
+        created_at: '2026-10-28 07:46'
+    },
+    {
+        id: 'sample-5',
+        prompt: 'Floating sky islands with cascading crystalline waterfalls',
+        style: 'photorealistic',
+        dimensions: '1024x1024',
+        engine: 'Cloud Diffusion (SANA 1.6B)',
+        seed: '451686106',
+        image_url: 'static/generated/art_4e2619936b33_451686106.png',
+        created_at: '2026-10-28 05:25'
+    },
+    {
+        id: 'sample-6',
+        prompt: 'A cute golden retriever puppy sitting in a flower garden',
+        style: 'photorealistic',
+        dimensions: '1024x1024',
+        engine: 'Cloud Diffusion (FLUX.1)',
+        seed: '408138792',
+        image_url: 'static/generated/art_6ce123849c14_408138792.png',
+        created_at: '2026-10-28 05:13'
+    }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
     initPromptHandlers();
     initStyleSelectors();
@@ -34,7 +167,47 @@ document.addEventListener('DOMContentLoaded', () => {
     initModalViewer();
     initPromptEnhancer();
     initSettingsModal();
+    initRecentStrip();
+    initGalleryPage();
+    updateNavBadge();
 });
+
+/**
+ * Intelligent AI Prompt Expansion (Client-side mirror of Python smart_expand_prompt)
+ */
+function smartExpandPrompt(prompt, styleKey = 'photorealistic') {
+    const clean = prompt.trim().replace(/\.+$/, '');
+    if (!clean) return prompt;
+    const lower = clean.toLowerCase();
+
+    const isAnimal = ['dog', 'cat', 'puppy', 'kitten', 'bird', 'lion', 'tiger', 'cow', 'horse', 'elephant', 'whale', 'animal', 'fish', 'bear', 'wolf', 'rabbit'].some(w => lower.includes(w));
+    const isPerson = ['man', 'woman', 'girl', 'boy', 'person', 'child', 'people', 'warrior', 'samurai', 'doctor', 'queen', 'king', 'model', 'dancer', 'astronaut'].some(w => lower.includes(w));
+    const isLandscape = ['city', 'mountain', 'forest', 'beach', 'sunset', 'landscape', 'river', 'pond', 'ocean', 'island', 'space', 'sky', 'castle', 'temple', 'village'].some(w => lower.includes(w));
+
+    const framing = (isPerson || isAnimal) ? 'Cinematic close-up portrait' : (isLandscape ? 'Expansive panoramic wide-angle view' : 'Highly focused composition');
+
+    let lighting = 'balanced natural studio lighting with lifelike depth and accurate shadows';
+    if (['night', 'dark', 'cyber', 'neon'].some(k => lower.includes(k))) {
+        lighting = 'atmospheric nocturnal illumination with radiant specular highlights';
+    } else if (['sun', 'morning', 'dawn', 'sunset', 'golden'].some(k => lower.includes(k))) {
+        lighting = 'warm golden hour sunlight with soft diffused shadows and raytracing glow';
+    } else if (['water', 'rain', 'pond', 'ocean', 'sea'].some(k => lower.includes(k))) {
+        lighting = 'crystal-clear volumetric light refractions on glistening water surfaces';
+    } else if (['space', 'cosmic', 'galaxy', 'nebula'].some(k => lower.includes(k))) {
+        lighting = 'luminous celestial starlight and glowing ethereal nebula radiance';
+    }
+
+    const details = 'intricate surface textures, sharp focus, natural color fidelity, high dynamic range';
+    return `${framing} of ${clean}, featuring ${lighting}, ${details}`;
+}
+
+function enhancePromptText(prompt, styleKey) {
+    const styleInfo = STYLE_PRESETS[styleKey] || STYLE_PRESETS['photorealistic'];
+    const suffix = (styleInfo && styleInfo.suffix) ? styleInfo.suffix.trim() : '';
+    const clean = prompt.trim().replace(/\.+$/, '');
+    if (!suffix) return clean;
+    return `${clean}, ${suffix}`;
+}
 
 /**
  * Handle Prompt Input, Character Counter, and Randomizer
@@ -47,14 +220,12 @@ function initPromptHandlers() {
 
     if (!promptInput) return;
 
-    // Character counter
     promptInput.addEventListener('input', () => {
         if (charCounter) {
             charCounter.textContent = promptInput.value.length;
         }
     });
 
-    // Surprise Me / Inspire Me button
     if (btnSurprise) {
         btnSurprise.addEventListener('click', () => {
             const randomIdea = PROMPT_IDEAS[Math.floor(Math.random() * PROMPT_IDEAS.length)];
@@ -65,7 +236,6 @@ function initPromptHandlers() {
         });
     }
 
-    // Quick suggestion chips
     suggestionChips.forEach(chip => {
         chip.addEventListener('click', () => {
             const text = chip.getAttribute('data-prompt') || chip.textContent;
@@ -115,6 +285,41 @@ function initAspectRatioSelectors() {
 }
 
 /**
+ * Local Storage History Helpers
+ */
+function getLocalHistory() {
+    try {
+        const stored = localStorage.getItem('ai_art_gallery');
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveLocalHistory(items) {
+    try {
+        localStorage.setItem('ai_art_gallery', JSON.stringify(items));
+        updateNavBadge();
+    } catch (e) {
+        console.warn('Could not save history to localStorage', e);
+    }
+}
+
+function addGenerationToHistory(item) {
+    const list = getLocalHistory();
+    list.unshift(item);
+    saveLocalHistory(list);
+}
+
+function updateNavBadge() {
+    const countEl = document.getElementById('navGalleryCount');
+    if (!countEl) return;
+    const history = getLocalHistory();
+    const count = history.length > 0 ? history.length : SHOWCASE_SAMPLES.length;
+    countEl.textContent = count > 0 ? count : '';
+}
+
+/**
  * Handle Asynchronous Art Generation
  */
 function initGenerationForm() {
@@ -122,7 +327,6 @@ function initGenerationForm() {
     const btnGenerate = document.getElementById('btnGenerate');
     const btnText = document.getElementById('btnGenerateText');
     
-    // Viewport elements
     const placeholderView = document.getElementById('placeholderView');
     const loadingView = document.getElementById('loadingView');
     const resultView = document.getElementById('resultView');
@@ -138,6 +342,7 @@ function initGenerationForm() {
     const pillSeed = document.getElementById('pillSeed');
     const btnDownload = document.getElementById('btnDownload');
     const btnCopyPrompt = document.getElementById('btnCopyPrompt');
+    const btnRemix = document.getElementById('btnRemix');
 
     if (!form) return;
 
@@ -155,7 +360,10 @@ function initGenerationForm() {
 
         const style = document.getElementById('selectedStyle')?.value || 'photorealistic';
         const aspect_ratio = document.getElementById('selectedRatio')?.value || '1:1';
-        const seed = document.getElementById('seedInput')?.value || -1;
+        let seed = parseInt(document.getElementById('seedInput')?.value);
+        if (isNaN(seed) || seed === -1) {
+            seed = Math.floor(Math.random() * 900000000) + 100000;
+        }
         const engine = document.getElementById('engineSelect')?.value || 'auto';
         const model = document.getElementById('modelSelect')?.value || 'flux';
         const negative_prompt = document.getElementById('negativePromptInput')?.value || '';
@@ -169,12 +377,11 @@ function initGenerationForm() {
         if (resultView) resultView.style.display = 'none';
         if (loadingView) loadingView.style.display = 'flex';
 
-        // Animate simulated progress steps smoothly across generation duration
         const timerIds = [];
         if (progressFill) progressFill.style.width = '10%';
         if (loadingStatus) loadingStatus.textContent = STATUS_STEPS[0].text;
 
-        STATUS_STEPS.forEach((step, idx) => {
+        STATUS_STEPS.forEach((step) => {
             const tId = setTimeout(() => {
                 if (progressFill) progressFill.style.width = `${step.progress}%`;
                 if (loadingStatus) loadingStatus.textContent = step.text;
@@ -185,26 +392,91 @@ function initGenerationForm() {
         const clearTimers = () => timerIds.forEach(id => clearTimeout(id));
 
         try {
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            let data = null;
+
+            // Attempt backend Flask API first (if available)
+            let backendSucceeded = false;
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        style: style,
+                        aspect_ratio: aspect_ratio,
+                        seed: seed,
+                        engine: engine,
+                        model: model,
+                        negative_prompt: negative_prompt,
+                        enhance: enhance
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        data = result.data;
+                        backendSucceeded = true;
+                    }
+                }
+            } catch (err) {
+                // Backend not available (e.g. GitHub Pages static deployment)
+                backendSucceeded = false;
+            }
+
+            // Client-Side Direct Generation (GitHub Pages fallback)
+            if (!backendSucceeded) {
+                const [width, height] = ASPECT_RATIO_DIMS[aspect_ratio] || [1024, 1024];
+                const enhancedPrompt = enhance ? enhancePromptText(prompt, style) : prompt;
+                
+                // Read client settings
+                const localSettings = getLocalSettings();
+                let imageUrl = '';
+                let engineUsed = `Cloud Diffusion (${model.toUpperCase()})`;
+
+                if (engine === 'huggingface' && localSettings.hf_token) {
+                    // Direct Hugging Face Inference
+                    imageUrl = await generateViaHuggingFace(enhancedPrompt, width, height, seed, localSettings.hf_token);
+                    engineUsed = 'Hugging Face (FLUX.1 Schnell)';
+                } else {
+                    // High-accuracy Pollinations AI direct URL
+                    let candModel = model || 'flux';
+                    if (candModel === 'turbo') candModel = 'sana';
+                    
+                    let pUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${candModel}`;
+                    if (negative_prompt.trim()) {
+                        pUrl += `&negative_prompt=${encodeURIComponent(negative_prompt.trim())}`;
+                    }
+                    if (localSettings.pollen_key) {
+                        pUrl += `&key=${encodeURIComponent(localSettings.pollen_key)}`;
+                    }
+
+                    // Preload the image in memory to ensure synthesis completes before showing
+                    await preloadImage(pUrl);
+                    imageUrl = pUrl;
+                }
+
+                data = {
+                    id: Date.now(),
                     prompt: prompt,
+                    enhanced_prompt: enhancedPrompt,
                     style: style,
                     aspect_ratio: aspect_ratio,
+                    dimensions: `${width}x${height}`,
                     seed: seed,
-                    engine: engine,
-                    model: model,
-                    negative_prompt: negative_prompt,
-                    enhance: enhance
-                })
-            });
+                    engine: engineUsed,
+                    filename: `art_${seed}.png`,
+                    image_url: imageUrl,
+                    created_at: new Date().toISOString().replace('T', ' ').substring(0, 16)
+                };
 
-            const result = await response.json();
+                // Save to browser localStorage history
+                addGenerationToHistory(data);
+            }
+
             clearTimers();
 
-            if (result.success && result.data) {
-                const data = result.data;
+            if (data && data.image_url) {
                 if (progressFill) progressFill.style.width = '100%';
 
                 // Render result
@@ -220,7 +492,8 @@ function initGenerationForm() {
 
                 if (btnDownload) {
                     btnDownload.href = data.image_url;
-                    btnDownload.setAttribute('download', data.filename);
+                    btnDownload.setAttribute('download', data.filename || `artwork_${data.seed}.png`);
+                    btnDownload.setAttribute('target', '_blank');
                 }
 
                 if (btnCopyPrompt) {
@@ -228,6 +501,20 @@ function initGenerationForm() {
                         navigator.clipboard.writeText(data.prompt);
                         showToast("Prompt copied to clipboard!");
                     };
+                }
+
+                if (btnRemix) {
+                    btnRemix.onclick = () => {
+                        promptInput.value = data.prompt;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        showToast("Remix prompt loaded in Studio!");
+                    };
+                }
+
+                // Make preview image clickable for zoom modal
+                const wrapper = document.getElementById('resultImageWrapper');
+                if (wrapper) {
+                    wrapper.onclick = () => openModal(data.image_url, encodeURIComponent(data.prompt), data.style, data.seed);
                 }
 
                 // Switch views
@@ -238,7 +525,7 @@ function initGenerationForm() {
                 prependToRecentStrip(data);
 
             } else {
-                throw new Error(result.error || "Generation failed.");
+                throw new Error("Generation failed to return artwork.");
             }
 
         } catch (error) {
@@ -253,7 +540,7 @@ function initGenerationForm() {
                     <div class="placeholder-icon">⚠️</div>
                     <h3>Generation Paused</h3>
                     <p style="font-size: 0.9rem; margin-top: 0.4rem; color: #fca5a5;">${error.message || "Cloud diffusion servers are busy."}</p>
-                    <p style="font-size: 0.82rem; margin-top: 0.6rem; color: var(--text-muted);">Tip: Free servers have a 30s cooldown between images. Click <strong>Generate Artwork</strong> again to synthesize, or configure a free Hugging Face token in Settings.</p>
+                    <p style="font-size: 0.82rem; margin-top: 0.6rem; color: var(--text-muted);">Tip: Free diffusion servers have a short cooldown between generations. Click <strong>Generate Artwork</strong> again to synthesize, or configure a free Hugging Face token in Settings.</p>
                 `;
             }
         } finally {
@@ -264,15 +551,80 @@ function initGenerationForm() {
 }
 
 /**
+ * Preload Image Helper
+ */
+function preloadImage(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(url);
+        img.onerror = () => reject(new Error("Image generation timed out. Please try again."));
+        img.src = url;
+    });
+}
+
+/**
+ * Direct Hugging Face Inference
+ */
+async function generateViaHuggingFace(prompt, width, height, seed, token) {
+    const modelId = "black-forest-labs/FLUX.1-schnell";
+    const apiUrl = `https://router.huggingface.co/hf-inference/models/${modelId}`;
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            inputs: prompt,
+            parameters: {
+                width: Math.min(width, 1024),
+                height: Math.min(height, 1024),
+                seed: seed
+            }
+        })
+    });
+    if (!response.ok) {
+        throw new Error(`Hugging Face API error (${response.status})`);
+    }
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+}
+
+/**
+ * Populate Recent Creations Strip
+ */
+function initRecentStrip() {
+    const stripGrid = document.getElementById('recentStripGrid');
+    if (!stripGrid) return;
+
+    const userHistory = getLocalHistory();
+    const itemsToShow = userHistory.length > 0 ? userHistory.slice(0, 8) : SHOWCASE_SAMPLES;
+
+    stripGrid.innerHTML = '';
+    itemsToShow.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'strip-card';
+        card.onclick = () => openModal(item.image_url, encodeURIComponent(item.prompt), item.style, item.seed);
+        card.innerHTML = `
+            <img src="${item.image_url}" alt="${item.prompt}" loading="lazy">
+            <div class="strip-overlay">
+                <span class="strip-prompt">${item.prompt}</span>
+            </div>
+        `;
+        stripGrid.appendChild(card);
+    });
+}
+
+/**
  * Prepend newly generated art into recent items strip
  */
 function prependToRecentStrip(data) {
-    const stripGrid = document.querySelector('.strip-grid');
+    const stripGrid = document.getElementById('recentStripGrid');
     if (!stripGrid) return;
 
     const card = document.createElement('div');
     card.className = 'strip-card';
-    card.setAttribute('onclick', `openModal('${data.image_url}', '${encodeURIComponent(data.prompt)}', '${data.style}', '${data.seed}')`);
+    card.onclick = () => openModal(data.image_url, encodeURIComponent(data.prompt), data.style, data.seed);
     card.innerHTML = `
         <img src="${data.image_url}" alt="${data.prompt}">
         <div class="strip-overlay">
@@ -307,6 +659,7 @@ function openModal(imgSrc, promptEncoded, style, seed) {
     const modalMeta = document.getElementById('modalMeta');
     const modalDownload = document.getElementById('modalDownload');
     const modalCopy = document.getElementById('modalCopy');
+    const modalRemix = document.getElementById('modalRemix');
 
     if (!modal || !modalImg) return;
 
@@ -318,6 +671,7 @@ function openModal(imgSrc, promptEncoded, style, seed) {
     if (modalDownload) {
         modalDownload.href = imgSrc;
         modalDownload.setAttribute('download', `art_${seed}.png`);
+        modalDownload.setAttribute('target', '_blank');
     }
 
     if (modalCopy) {
@@ -327,38 +681,26 @@ function openModal(imgSrc, promptEncoded, style, seed) {
         };
     }
 
+    if (modalRemix) {
+        modalRemix.onclick = () => {
+            closeModal();
+            const promptInput = document.getElementById('promptInput');
+            if (promptInput) {
+                promptInput.value = prompt;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showToast("Remix prompt loaded in Studio!");
+            } else {
+                window.location.href = `index.html`;
+            }
+        };
+    }
+
     modal.classList.add('open');
 }
 
 function closeModal() {
     const modal = document.getElementById('imageModal');
     if (modal) modal.classList.remove('open');
-}
-
-/**
- * Delete Generation from History Gallery
- */
-async function deleteGeneration(id, cardElement) {
-    if (!confirm("Are you sure you want to delete this artwork?")) return;
-
-    try {
-        const response = await fetch(`/api/history/${id}`, { method: 'DELETE' });
-        const result = await response.json();
-
-        if (result.success) {
-            showToast("Artwork deleted.");
-            if (cardElement) {
-                cardElement.style.transition = "opacity 0.3s, transform 0.3s";
-                cardElement.style.opacity = '0';
-                cardElement.style.transform = 'scale(0.9)';
-                setTimeout(() => cardElement.remove(), 300);
-            }
-        } else {
-            showToast(result.error || "Could not delete artwork", "error");
-        }
-    } catch (err) {
-        showToast("Error deleting artwork", "error");
-    }
 }
 
 /**
@@ -415,21 +757,35 @@ function initPromptEnhancer() {
 
         try {
             const style = hiddenStyle ? hiddenStyle.value : 'photorealistic';
-            const res = await fetch('/api/enhance-prompt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: prompt, style: style })
-            });
-            const data = await res.json();
-            if (data.success && data.enhanced_prompt) {
-                promptInput.value = data.enhanced_prompt;
-                if (charCounter) charCounter.textContent = data.enhanced_prompt.length;
-                showToast("Prompt expanded with photorealistic details!");
-            } else {
-                showToast(data.error || "Could not enhance prompt", "error");
+            let enhanced = '';
+
+            // Try backend API first, otherwise client-side
+            try {
+                const res = await fetch('/api/enhance-prompt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt, style: style })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.enhanced_prompt) {
+                        enhanced = data.enhanced_prompt;
+                    }
+                }
+            } catch (e) {
+                // Backend not available, use client-side expansion
             }
+
+            if (!enhanced) {
+                enhanced = smartExpandPrompt(prompt, style);
+            }
+
+            promptInput.value = enhanced;
+            if (charCounter) charCounter.textContent = enhanced.length;
+            showToast("Prompt expanded with photorealistic details!");
+
         } catch (err) {
-            showToast("Error connecting to prompt enhancer", "error");
+            showToast("Could not enhance prompt", "error");
         } finally {
             btnEnhance.disabled = false;
             btnEnhance.innerHTML = originalHtml;
@@ -438,8 +794,25 @@ function initPromptEnhancer() {
 }
 
 /**
- * Settings Modal and API Key Management
+ * Settings Management & Local Storage
  */
+function getLocalSettings() {
+    try {
+        const s = localStorage.getItem('ai_art_settings');
+        return s ? JSON.parse(s) : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveLocalSettings(settings) {
+    try {
+        localStorage.setItem('ai_art_settings', JSON.stringify(settings));
+    } catch (e) {
+        console.warn('Could not save settings to localStorage', e);
+    }
+}
+
 function initSettingsModal() {
     const modal = document.getElementById('settingsModal');
     const btnOpen = document.getElementById('btnOpenSettings');
@@ -451,40 +824,42 @@ function initSettingsModal() {
     if (btnOpen) {
         btnOpen.addEventListener('click', async () => {
             modal.classList.add('open');
+            const local = getLocalSettings();
+            
+            const hf = document.getElementById('settingHfToken');
+            const oa = document.getElementById('settingOpenAiKey');
+            const st = document.getElementById('settingStabilityKey');
+            const po = document.getElementById('settingPollenKey');
+            const sd = document.getElementById('settingSdUrl');
+
+            if (hf && local.hf_token) hf.value = local.hf_token;
+            if (oa && local.openai_api_key) oa.value = local.openai_api_key;
+            if (st && local.stability_api_key) st.value = local.stability_api_key;
+            if (po && local.pollen_key) po.value = local.pollen_key;
+            if (sd && local.sd_url) sd.value = local.sd_url;
+
+            // Also check backend settings if connected
             try {
                 const res = await fetch('/api/settings');
-                const data = await res.json();
-                if (data.success && data.keys) {
-                    const k = data.keys;
-                    const hf = document.getElementById('settingHfToken');
-                    const oa = document.getElementById('settingOpenAiKey');
-                    const st = document.getElementById('settingStabilityKey');
-                    const po = document.getElementById('settingPollenKey');
-                    const sd = document.getElementById('settingSdUrl');
-
-                    if (hf && k.hf_token_configured) hf.placeholder = "●●● Token Configured ●●●";
-                    if (oa && k.openai_configured) oa.placeholder = "●●● Key Configured ●●●";
-                    if (st && k.stability_configured) st.placeholder = "●●● Key Configured ●●●";
-                    if (po && k.pollen_configured) po.placeholder = "●●● Key Configured ●●●";
-                    if (sd && k.sd_url) sd.value = k.sd_url;
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.keys) {
+                        const k = data.keys;
+                        if (hf && k.hf_token_configured) hf.placeholder = "●●● Token Configured (Server) ●●●";
+                        if (oa && k.openai_configured) oa.placeholder = "●●● Key Configured (Server) ●●●";
+                        if (st && k.stability_configured) st.placeholder = "●●● Key Configured (Server) ●●●";
+                    }
                 }
-            } catch (e) {
-                console.warn("Could not fetch settings:", e);
-            }
+            } catch (e) {}
         });
     }
 
     if (btnClose) {
-        btnClose.addEventListener('click', () => {
-            modal.classList.remove('open');
-        });
+        btnClose.addEventListener('click', () => modal.classList.remove('open'));
     }
 
-    // Close on clicking backdrop
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.remove('open');
-        }
+        if (e.target === modal) modal.classList.remove('open');
     });
 
     if (form) {
@@ -500,49 +875,161 @@ function initSettingsModal() {
             if (hfVal) payload.hf_token = hfVal;
             if (oaVal) payload.openai_api_key = oaVal;
             if (stVal) payload.stability_api_key = stVal;
-            if (poVal) payload.pollen_api_key = poVal;
+            if (poVal) payload.pollen_key = poVal;
             if (sdVal) payload.sd_url = sdVal;
 
+            // Always save to browser localStorage
+            saveLocalSettings(payload);
+
+            // Attempt backend save as well
             try {
-                const res = await fetch('/api/settings', {
+                await fetch('/api/settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await res.json();
-                if (data.success) {
-                    showToast("API keys saved and applied successfully!");
-                    modal.classList.remove('open');
-                    if (data.keys) {
-                        updateEngineOptions(data.keys);
-                    }
-                } else {
-                    showToast(data.error || "Failed to save settings", "error");
-                }
-            } catch (err) {
-                showToast("Error saving settings", "error");
-            }
+            } catch (err) {}
+
+            showToast("API keys saved and applied successfully!");
+            modal.classList.remove('open');
         });
     }
 }
 
-function updateEngineOptions(keys) {
-    const engineSelect = document.getElementById('engineSelect');
-    if (!engineSelect) return;
-    const optHf = engineSelect.querySelector('option[value="huggingface"]');
-    const optOa = engineSelect.querySelector('option[value="openai"]');
-    const optSt = engineSelect.querySelector('option[value="stability"]');
+/**
+ * Gallery & History Page Manager
+ */
+function initGalleryPage() {
+    const galleryGrid = document.getElementById('galleryGrid');
+    if (!galleryGrid) return; // Not on history.html
 
-    if (optHf) {
-        optHf.disabled = !keys.hf_token_configured;
-        optHf.textContent = keys.hf_token_configured ? "Hugging Face FLUX.1 ⚡ (Active)" : "Hugging Face FLUX.1 (Token in Settings)";
+    const filterPills = document.querySelectorAll('.pill-filter');
+    const searchInput = document.getElementById('gallerySearchInput');
+    const btnClear = document.getElementById('btnClearHistory');
+    const emptyState = document.getElementById('galleryEmptyState');
+    const totalArtCount = document.getElementById('totalArtCount');
+
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    function getCombinedItems() {
+        const local = getLocalHistory();
+        return local.length > 0 ? local : SHOWCASE_SAMPLES;
     }
-    if (optOa) {
-        optOa.disabled = !keys.openai_configured;
-        optOa.textContent = keys.openai_configured ? "OpenAI DALL-E 3 ⚡ (Active)" : "OpenAI DALL-E 3 (Key in Settings)";
+
+    function renderGallery() {
+        const allItems = getCombinedItems();
+        if (totalArtCount) totalArtCount.textContent = allItems.length;
+
+        const filtered = allItems.filter(item => {
+            const matchesStyle = (currentFilter === 'all') || (item.style === currentFilter);
+            const matchesSearch = !searchQuery || item.prompt.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesStyle && matchesSearch;
+        });
+
+        galleryGrid.innerHTML = '';
+
+        if (filtered.length === 0) {
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
+
+        if (emptyState) emptyState.style.display = 'none';
+
+        filtered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'gallery-card';
+            card.id = `card-${item.id}`;
+            card.innerHTML = `
+                <div class="gallery-thumb-wrapper">
+                    <img src="${item.image_url}" alt="${item.prompt}" loading="lazy">
+                </div>
+                <div class="gallery-body">
+                    <p class="gallery-prompt" title="${item.prompt}">${item.prompt}</p>
+                    <div style="display: flex; gap: 0.4rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
+                        <span class="meta-pill">${item.style}</span>
+                        <span class="meta-pill">${item.dimensions || '1024x1024'}</span>
+                        <span class="meta-pill">${item.engine || 'Cloud Diffusion'}</span>
+                    </div>
+                    <div class="gallery-footer">
+                        <span class="gallery-date">${(item.created_at || '').substring(0, 16)}</span>
+                        <div class="gallery-btn-group">
+                            <a href="${item.image_url}" download="${item.filename || 'artwork.png'}" target="_blank" class="btn-icon" title="Download Image">
+                                📥
+                            </a>
+                            <button type="button" class="btn-icon delete" title="Delete Artwork" data-id="${item.id}">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Card zoom
+            const thumb = card.querySelector('.gallery-thumb-wrapper');
+            if (thumb) {
+                thumb.onclick = () => openModal(item.image_url, encodeURIComponent(item.prompt), item.style, item.seed);
+            }
+
+            // Card delete
+            const btnDel = card.querySelector('.btn-icon.delete');
+            if (btnDel) {
+                btnDel.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteGalleryItem(item.id, card);
+                };
+            }
+
+            galleryGrid.appendChild(card);
+        });
     }
-    if (optSt) {
-        optSt.disabled = !keys.stability_configured;
-        optSt.textContent = keys.stability_configured ? "Stability AI SD 3.5 ⚡ (Active)" : "Stability AI SD 3.5 (Key in Settings)";
+
+    function deleteGalleryItem(id, cardElement) {
+        if (!confirm("Are you sure you want to delete this artwork?")) return;
+
+        let history = getLocalHistory();
+        history = history.filter(item => String(item.id) !== String(id));
+        saveLocalHistory(history);
+
+        if (cardElement) {
+            cardElement.style.transition = "opacity 0.3s, transform 0.3s";
+            cardElement.style.opacity = '0';
+            cardElement.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                cardElement.remove();
+                renderGallery();
+            }, 300);
+        }
+        showToast("Artwork removed from gallery.");
     }
+
+    // Filter pills
+    filterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            filterPills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            currentFilter = pill.getAttribute('data-filter') || 'all';
+            renderGallery();
+        });
+    });
+
+    // Search input
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.trim();
+            renderGallery();
+        });
+    }
+
+    // Clear All
+    if (btnClear) {
+        btnClear.addEventListener('click', () => {
+            if (!confirm("Clear your entire generation history?")) return;
+            saveLocalHistory([]);
+            renderGallery();
+            showToast("Gallery cleared.");
+        });
+    }
+
+    renderGallery();
 }

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - AI Art Generator</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon">🎨</div>
+            <span>AI <span class="brand-gradient">Art Generator</span></span>
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">Studio</a>
+            <a href="history.html" class="nav-link">
+                Gallery
+                <span class="badge-stat" id="navGalleryCount"></span>
+            </a>
+            <a href="about.html" class="nav-link active">About</a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container" style="max-width: 1000px;">
+        
+        <div class="page-header">
+            <h1 class="page-title">About AI Art Generator</h1>
+            <p class="page-subtitle">A modern, responsive creative generative synthesis studio powered by high-accuracy multi-engine AI pipelines.</p>
+        </div>
+
+        <!-- System Architecture Overview -->
+        <div class="glass-panel" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: #a5b4fc;">🎨 Architecture &amp; Engines</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.2rem;">
+                This application features an adaptive multi-backend architecture designed to work seamlessly out-of-the-box on GitHub Pages or locally, supporting cutting-edge cloud diffusion models without requiring paid subscriptions.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1.5rem;">
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #38bdf8;">🌐 Cloud Diffusion (FLUX.1 &amp; SANA)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Zero-config state-of-the-art diffusion models via Pollinations AI. Offers extraordinary photorealism, accurate anatomy, and prompt fidelity across 1024x1024 resolutions.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #f472b6;">🤗 Hugging Face Serverless</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Direct integration with Hugging Face Inference API for models like <strong>FLUX.1-schnell</strong> and <strong>Stable Diffusion XL</strong> with a free user access token.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #34d399;">🤖 OpenAI DALL-E 3</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Industry-leading semantic comprehension. Capable of translating complex scene descriptions, spatial relationships, and typography into crisp visual art.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 1.2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #fbbf24;">⚡ Procedural Synthesizer</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        High-speed procedural mathematical synthesizer. Uses harmonic frequency synthesis, gradient fields, and aesthetic style filters.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prompt Engineering Tips -->
+        <div class="glass-panel" style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: #a5b4fc;">🪄 Prompt Engineering Best Practices</h2>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem; line-height: 1.8; font-size: 0.95rem;">
+                <li><strong>Be specific with subjects:</strong> Specify animals, breeds, character attire, poses, and environmental settings.</li>
+                <li><strong>Describe lighting &amp; atmosphere:</strong> Use terms like <em>"volumetric golden hour sunbeams"</em>, <em>"soft cinematic fill light"</em>, or <em>"nocturnal neon glow"</em>.</li>
+                <li><strong>Use the AI Enhance button:</strong> Click <strong>🪄 AI Enhance</strong> in Studio to automatically expand any brief prompt with tailored cinematography and surface detail.</li>
+                <li><strong>Aspect ratios matter:</strong> Use <strong>16:9</strong> for sprawling landscapes and cityscapes, <strong>9:16</strong> for characters/portraits, and <strong>1:1</strong> for centered subjects.</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>AI Art Generator &copy; 2026 &bull; Multi-Engine Generative Studio</p>
+    </footer>
+
+    <script src="static/js/script.js"></script>
+</body>
+</html>
